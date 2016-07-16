@@ -134,8 +134,8 @@ object Huffman {
   def combine(trees: List[CodeTree]): List[CodeTree] = {
     if (trees.size < 2)
       trees
-    //TODO combine the first two elements
-    trees
+    else
+      (makeCodeTree(trees.head, trees.tail.head) :: trees.tail.tail).sortWith((a, b) => weight(a) < weight(b))
   }
 
   /**
@@ -155,7 +155,10 @@ object Huffman {
     * the example invocation. Also define the return type of the `until` function.
     * - try to find sensible parameter names for `xxx`, `yyy` and `zzz`.
     */
-  def until(xxx: ???, yyy: ???)(zzz: ???): ??? = ???
+  def until(xxx: List[CodeTree] => Boolean, yyy: List[CodeTree] => List[CodeTree])(zzz: List[CodeTree]): List[CodeTree] = {
+    // TODO implement
+    zzz
+  }
 
   /**
     * This function creates a code tree which is optimal to encode the text `chars`.
