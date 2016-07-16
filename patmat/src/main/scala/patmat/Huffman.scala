@@ -78,22 +78,16 @@ object Huffman {
     */
   def times(chars: List[Char]): List[(Char, Int)] = {
     def occurs(char: Char, count: List[(Char, Int)]): List[(Char, Int)] = {
-      if (count.isEmpty)
-        count :+(char, 1)
-      else
-        count.head match {
-          case (ch, fr) =>
-            if (char == ch)
-              (ch, fr + 1) :: count.tail
-            else
-              count.head :: occurs(char, count.tail)
-        }
+      if (count.isEmpty) count :+(char, 1)
+      else count.head match {
+        case (ch, fr) =>
+          if (char == ch) (ch, fr + 1) :: count.tail
+          else count.head :: occurs(char, count.tail)
+      }
     }
 
-    if (chars.isEmpty)
-      List[(Char, Int)]()
-    else
-      occurs(chars.head, times(chars.tail))
+    if (chars.isEmpty) List[(Char, Int)]()
+    else occurs(chars.head, times(chars.tail))
   }
 
   /**
@@ -132,10 +126,8 @@ object Huffman {
     * unchanged.
     */
   def combine(trees: List[CodeTree]): List[CodeTree] = {
-    if (trees.size < 2)
-      trees
-    else
-      (makeCodeTree(trees.head, trees.tail.head) :: trees.tail.tail).sortWith((a, b) => weight(a) < weight(b))
+    if (trees.size < 2) trees
+    else (makeCodeTree(trees.head, trees.tail.head) :: trees.tail.tail).sortWith((a, b) => weight(a) < weight(b))
   }
 
   /**
@@ -156,10 +148,8 @@ object Huffman {
     * - try to find sensible parameter names for `xxx`, `yyy` and `zzz`.
     */
   def until(singleton: List[CodeTree] => Boolean, combine: List[CodeTree] => List[CodeTree])(list: List[CodeTree]): List[CodeTree] = {
-    if (singleton(list))
-      list
-    else
-      until(singleton, combine)(combine(list))
+    if (singleton(list)) list
+    else until(singleton, combine)(combine(list))
   }
 
   /**
@@ -186,8 +176,7 @@ object Huffman {
       subtree match {
         case Leaf(ch, fr) => ch :: iter(tree, bits)
         case Fork(l, r, c, w) =>
-          if (bits.isEmpty)
-            List[Char]()
+          if (bits.isEmpty) List[Char]()
           else bits.head match {
             case 0 => iter(l, bits.tail)
             case 1 => iter(r, bits.tail)
@@ -224,17 +213,13 @@ object Huffman {
     */
   def encode(tree: CodeTree)(text: List[Char]): List[Bit] = {
     def iter(subtree: CodeTree)(subtext: List[Char]): List[Bit] = {
-      if (subtext.isEmpty)
-        List[Bit]()
+      if (subtext.isEmpty) List[Bit]()
       else subtree match {
         case Leaf(c, f) => iter(tree)(subtext.tail)
         case Fork(l, r, c, w) => {
-          if (chars(l).contains(subtext.head))
-            0 :: iter(l)(subtext)
-          else if (chars(r).contains(subtext.head))
-            1 :: iter(r)(subtext)
-          else
-            List[Bit]()
+          if (chars(l).contains(subtext.head)) 0 :: iter(l)(subtext)
+          else if (chars(r).contains(subtext.head)) 1 :: iter(r)(subtext)
+          else List[Bit]()
         }
       }
     }
@@ -250,12 +235,9 @@ object Huffman {
     * the code table `table`.
     */
   def codeBits(table: CodeTable)(char: Char): List[Bit] = {
-    if (table.isEmpty)
-      List[Bit]()
-    else if (table.head._1 == char)
-      table.head._2
-    else
-      codeBits(table.tail)(char)
+    if (table.isEmpty) List[Bit]()
+    else if (table.head._1 == char) table.head._2
+    else codeBits(table.tail)(char)
   }
 
   /**
@@ -270,9 +252,7 @@ object Huffman {
     def iter(subtree: CodeTree, acc: List[Bit]): CodeTable = {
       subtree match {
         case Leaf(c, f) => List[(Char, List[Bit])]((c, acc))
-        case Fork(l, r, c, w) => {
-          iter(l, acc :+ 0) ::: iter(r, acc :+ 1)
-        }
+        case Fork(l, r, c, w) => iter(l, acc :+ 0) ::: iter(r, acc :+ 1)
       }
     }
     iter(tree, List[Bit]())
@@ -295,10 +275,8 @@ object Huffman {
     val getbits: (Char) => List[Bit] = codeBits(convert(tree))
 
     def iter(subtext: List[Char]): List[Bit] = {
-      if (subtext.isEmpty)
-        List[Bit]()
-      else
-        getbits(subtext.head) ::: iter(subtext.tail)
+      if (subtext.isEmpty) List[Bit]()
+      else getbits(subtext.head) ::: iter(subtext.tail)
     }
 
     iter(text)
