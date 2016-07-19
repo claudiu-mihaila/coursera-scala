@@ -102,7 +102,36 @@ object Anagrams {
     * Note that the order of the occurrence list subsets does not matter -- the subsets
     * in the example above could have been displayed in some other order.
     */
-  def combinations(occurrences: Occurrences): List[Occurrences] = ???
+  def combinations(occurrences: Occurrences): List[Occurrences] = {
+
+    def combination(pair: (Char, Int)): List[(Char, Int)] = {
+      if (pair._2 < 1) List[(Char, Int)]()
+      else combination((pair._1, pair._2 - 1)) :+ (pair._1, pair._2)
+    }
+
+    def cross(list1: List[(Char, Int)], list2: List[List[(Char, Int)]]): List[List[(Char, Int)]] = {
+      if (list2 == List())
+        List(list1)
+      else for {x <- list1; y <- list2 if y.filter((p => p._1 == x._1)).isEmpty}
+        yield (x :: y).sortWith((a,b) => a._1 < b._1)
+    }
+
+    def iter(list1: List[(Char, Int)], list2: List[List[(Char, Int)]]): List[List[(Char, Int)]] = {
+      val cross1: List[List[(Char, Int)]] = cross(list1, list2).distinct
+      if (list1.isEmpty) {
+        cross1
+      } else if (cross1.toSet.filter(p => !list2.toSet.contains(p)).isEmpty) {
+        List()
+      } else{
+        (list2 ::: cross1 ::: iter(list1, (list2 ::: cross1).distinct)).distinct
+      }
+    }
+
+    val z = occurrences.map(pair => combination(pair)).flatten ::: List()
+    val initmap: List[List[(Char, Int)]] = z.map(p => List(p))
+
+    (List(List()) ::: iter(z, initmap)).distinct
+  }
 
   /** Subtracts occurrence list `y` from occurrence list `x`.
     *
