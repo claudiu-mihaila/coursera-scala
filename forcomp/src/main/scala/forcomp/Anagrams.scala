@@ -144,7 +144,15 @@ object Anagrams {
     * and has no zero-entries.
     */
   def subtract(x: Occurrences, y: Occurrences): Occurrences = {
-    y.foldLeft(x)((a,b) => a.filterNot(q => q._1 == b._1))
+    y.foldLeft(x)((a,b) => {
+      val find: Option[(Char, Int)] = a.find((_._1 == b._1))
+      if (!find.isEmpty) {
+        val indexOf: Int = a.indexOf(find.get)
+        a.updated(indexOf, (a.apply(indexOf)._1, a.apply(indexOf)._2 - b._2))
+      }
+      else
+        a
+    }).filter(p => p._2 > 0)
   }
 
   /** Returns a list of all anagram sentences of the given sentence.
