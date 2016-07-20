@@ -143,7 +143,9 @@ object Anagrams {
     * Note: the resulting value is an occurrence - meaning it is sorted
     * and has no zero-entries.
     */
-  def subtract(x: Occurrences, y: Occurrences): Occurrences = ???
+  def subtract(x: Occurrences, y: Occurrences): Occurrences = {
+    y.foldLeft(x)((a,b) => a.filterNot(q => q._1 == b._1))
+  }
 
   /** Returns a list of all anagram sentences of the given sentence.
     *
